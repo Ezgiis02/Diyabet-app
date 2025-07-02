@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diyabet Tahmin Uygulaması</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .form-container {
+            background: #fff;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #result {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            display: none;
+        }
+        .positive {
+            background-color: #ffdddd;
+            color: #c0392b;
+            border: 1px solid #c0392b;
+        }
+        .negative {
+            background-color: #ddffdd;
+            color: #27ae60;
+            border: 1px solid #27ae60;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Diyabet Risk Tahmin Uygulaması</h1>
+        
+        <form id="diabetesForm">
+            <div class="form-group">
+                <label for="pregnancies">Hamilelik Sayısı:</label>
+                <input type="number" id="pregnancies" min="0" max="20" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="glucose">Glukoz Seviyesi (mg/dL):</label>
+                <input type="number" id="glucose" min="0" max="200" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="bloodPressure">Kan Basıncı (mm Hg):</label>
+                <input type="number" id="bloodPressure" min="0" max="122" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="skinThickness">Cilt Kalınlığı (mm):</label>
+                <input type="number" id="skinThickness" min="0" max="99" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="insulin">İnsulin Seviyesi (mu U/ml):</label>
+                <input type="number" id="insulin" min="0" max="846" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="bmi">Vücut Kitle İndeksi (kg/m²):</label>
+                <input type="number" step="0.1" id="bmi" min="0" max="67.1" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="diabetesPedigreeFunction">Diyabet Soy Ağacı Fonksiyonu:</label>
+                <input type="number" step="0.001" id="diabetesPedigreeFunction" min="0.078" max="2.42" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="age">Yaş:</label>
+                <input type="number" id="age" min="21" max="81" required>
+            </div>
+            
+            <button type="submit" id="predictButton">Tahmin Et</button>
+        </form>
+        
+        <div id="result">
+            <div id="predictionText"></div>
+            
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('diabetesForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const predictButton = document.getElementById('predictButton');
+            predictButton.disabled = true;
+            predictButton.textContent = 'Tahmin Yapılıyor...';
+            
+            try {
+                const formData = {
+                    pregnancies: parseFloat(document.getElementById('pregnancies').value),
+                    glucose: parseFloat(document.getElementById('glucose').value),
+                    bloodPressure: parseFloat(document.getElementById('bloodPressure').value),
+                    skinThickness: parseFloat(document.getElementById('skinThickness').value),
+                    insulin: parseFloat(document.getElementById('insulin').value),
+                    bmi: parseFloat(document.getElementById('bmi').value),
+                    diabetesPedigreeFunction: parseFloat(document.getElementById('diabetesPedigreeFunction').value),
+                    age: parseFloat(document.getElementById('age').value)
+                };
+                
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Sunucu hatası: ' + response.status);
+                }
+                
+                const result = await response.json();
+                const resultDiv = document.getElementById('result');
+                const predictionText = document.getElementById('predictionText');
+
+                
+                if (result.error) {
+                    predictionText.textContent = `Hata: ${result.error}`;
+                    resultDiv.style.display = 'block';
+                    resultDiv.className = 'positive';
+                } else {
+                    const prediction = result.prediction;
+                    const probability = result.probability !== undefined ? 
+                                       Math.round(result.probability * 100) : 
+                                       null;
+                    
+                    if (prediction === 1) {
+                        predictionText.textContent = 'Sonuç: Diyabet riski YÜKSEK';
+                        resultDiv.className = 'positive';
+                    } else {
+                        predictionText.textContent = 'Sonuç: Diyabet riski DÜŞÜK';
+                        resultDiv.className = 'negative';
+                    }
+                    
+
+                    
+                    resultDiv.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Hata:', error);
+                alert('Tahmin yapılırken bir hata oluştu: ' + error.message);
+            } finally {
+                predictButton.disabled = false;
+                predictButton.textContent = 'Tahmin Et';
+            }
+        });
+    </script>
+</body>
+</html>

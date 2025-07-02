@@ -1,0 +1,220 @@
+:root {
+    --primary-color: #3498db;
+    --primary-hover: #2980b9;
+    --positive-color: #e74c3c;
+    --positive-bg: #ffdddd;
+    --negative-color: #27ae60;
+    --negative-bg: #ddffdd;
+    --text-color: #2c3e50;
+    --light-gray: #ecf0f1;
+    --medium-gray: #bdc3c7;
+    --dark-gray: #7f8c8d;
+    --white: #ffffff;
+    --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    --border-radius: 8px;
+    --transition: all 0.3s ease;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--light-gray);
+    padding: 20px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+h1 {
+    color: var(--text-color);
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.2rem;
+    font-weight: 700;
+    position: relative;
+    padding-bottom: 15px;
+}
+
+h1::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: var(--primary-color);
+    border-radius: 3px;
+}
+
+.form-container {
+    background: var(--white);
+    padding: 30px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    width: 100%;
+    max-width: 800px;
+    transition: var(--transition);
+}
+
+.form-group {
+    margin-bottom: 25px;
+    position: relative;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-color);
+    font-size: 0.95rem;
+}
+
+input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid var(--medium-gray);
+    border-radius: var(--border-radius);
+    font-size: 16px;
+    transition: var(--transition);
+    background-color: var(--white);
+}
+
+input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+input::placeholder {
+    color: var(--medium-gray);
+}
+
+button {
+    background-color: var(--primary-color);
+    color: var(--white);
+    border: none;
+    padding: 14px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    width: 100%;
+    transition: var(--transition);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+button:disabled {
+    background-color: var(--medium-gray);
+    cursor: not-allowed;
+    transform: none;
+}
+
+#result {
+    margin-top: 30px;
+    padding: 25px;
+    border-radius: var(--border-radius);
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: bold;
+    display: none;
+    animation: fadeIn 0.5s ease;
+    box-shadow: var(--box-shadow);
+}
+
+.positive {
+    background-color: var(--positive-bg);
+    color: var(--positive-color);
+    border: 1px solid var(--positive-color);
+}
+
+.negative {
+    background-color: var(--negative-bg);
+    color: var(--negative-color);
+    border: 1px solid var(--negative-color);
+}
+
+#predictionText {
+    margin-bottom: 10px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    body {
+        padding: 15px;
+    }
+    
+    .form-container {
+        padding: 20px;
+    }
+    
+    h1 {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.5rem;
+    }
+    
+    input, button {
+        padding: 10px 12px;
+    }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Tooltip for form fields */
+.form-group:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    right: 0;
+    top: 0;
+    background: var(--text-color);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: normal;
+    opacity: 0;
+    transition: var(--transition);
+    pointer-events: none;
+}
+
+.form-group:hover::after {
+    opacity: 1;
+    right: -10px;
+    transform: translateX(100%);
+}
+
+/* Add some icons for better UX */
+.form-group label::before {
+    content: '•';
+    color: var(--primary-color);
+    margin-right: 8px;
+}
